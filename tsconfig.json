@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+      "outDir": "./dist/",
+      "sourceMap": true, //helps debuggers that read compiled js to understand what was written in original TS file
+      "noImplicitAny": true, //will show error if no type on 
+      "module": "ES6", // defines the way how output js will look like
+      "target": "ES6", // modern browsers support ES6 
+      "jsx": "react", // defines what format the jsx (html in js) will look like
+      "moduleResolution": "node",
+      "allowSyntheticDefaultImports": true,
+      "allowJs": true
+    },
+    "include": ["src/**/*", "tests/**/*"]
+    
+}
+  
+    
+
+  
