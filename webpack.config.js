@@ -33,11 +33,14 @@ const config = {
             },
             {
                 test: /\.css$/i,
-                use: [stylesHandler,'css-loader'],
+                use: [stylesHandler, 'css-loader'],
             },
+
             {
-                test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
-                type: 'asset',
+                test: /\.(jpg|png)$/,
+                use: {
+                    loader: 'url-loader',
+                },
             },
 
             // Add your rules for custom modules here
@@ -45,7 +48,7 @@ const config = {
         ],
     },
     resolve: {
-        extensions: ['.tsx', '.ts', '.jsx', '.js', 'mjs', 'json', '...'],
+        extensions: ['.tsx', '.ts', '.jsx', '.js', '.mjs', '.json', '...'],
     },
 };
 
