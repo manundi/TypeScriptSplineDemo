@@ -1,10 +1,16 @@
  🚀🚀🚀🚀🚀
 
-Trying to learn Typescript, spine and pixijs at the same time to crate html canvas games. 
+Learning Typescript game development
 
-This project has been created using **webpack-cli**, you can now run
-npm run build
-to bundle your application
+This project has been created using 
+**webpack-cli**
+Pixi js
+pixi-spine
+
+
+Images: 
+-wikipedia.org
+-https://esotericsoftware.com/spine-examples
 
 
  🚀🚀🚀🚀🚀

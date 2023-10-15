@@ -53,6 +53,13 @@ const game = new PIXI.Application<any>({
 // attach the game (pixi app) to the html document element called body
 document.body.appendChild(game.view)
 
+PIXI.Assets.load('/assets/Arrow_keys.jpg').then((resource) => {
+    const keyboardInstructions = new PIXI.Sprite(resource)
+    keyboardInstructions.setTransform(screenSize.x/2 -100,screenSize.y-200,0.5,0.5)
+    game.stage.addChild(keyboardInstructions);
+})
+
+
 PIXI.Assets.load('/assets/animation/spineboy-pro.json').then((resource) => {
     //console.log('Loaded spineboy: ', resource)
 
