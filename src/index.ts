@@ -26,7 +26,7 @@ const playerSettings: CharacterSettings = {
 
 const playerTransform = new Container()
 const playerNamePlate = new Text(playerSettings.name)
-let animation: any
+let animation: Spine
 let gameHasStarted = false
 
 
@@ -42,6 +42,7 @@ let player = {
     namePlate: playerNamePlate,
     velocity: 1,
 }
+
 
 // define basic settings of html canvas. Sizer bg color etc.
 const game = new PIXI.Application<any>({
@@ -64,6 +65,55 @@ PIXI.Assets.load('/assets/animation/spineboy-pro.json').then((resource) => {
     //console.log('Loaded spineboy: ', resource)
 
     animation = new Spine(resource.spineData);
+    const shadow : Spine = new Spine(resource.spineData);
+
+    const fiter = new PIXI.Filter(
+        `
+        attribute vec2 aVertexPosition;
+        attribute vec2 aTextureCoord;
+        
+        uniform mat3 projectionMatrix;
+        
+        varying vec2 vTextureCoord;
+        
+        void main(void) {
+            vTextureCoord = aTextureCoord;
+            gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
+        }
+       
+       `,
+       `
+       
+       precision mediump float;
+    
+       varying vec2 vTextureCoord;
+       uniform sampler2D uSampler;
+       
+      
+       void main(void) {
+           vec4 color = texture2D(uSampler, vTextureCoord);
+       
+           // Sample neighboring pixels for a basic blur effect
+           vec4 blurColor = texture2D(uSampler, vTextureCoord + vec2(0.5 , 0.5 )) * 0.25
+                          + texture2D(uSampler, vTextureCoord + vec2(-0.5 , 0.5 )) * 0.25
+                          + texture2D(uSampler, vTextureCoord + vec2(0.5 , -0.5 )) * 0.25
+                          + texture2D(uSampler, vTextureCoord + vec2(-0.5 , -0.5 )) * 0.25;
+       
+           // If the original pixel is not transparent but the blurred area is, then draw the shadow
+           if (color.a > 0.0 && blurColor.a > 0.0) {
+               gl_FragColor = vec4(0.0, 0.0, 0.0, 0.9  * blurColor.a);
+           } else {
+               discard;
+           }
+       }
+       
+       
+    
+    `,
+       null)
+        
+    shadow.filters = [fiter];
+
     playerNamePlate.setTransform(-250, 1, 3, 3)
     playerNamePlate.setParent(playerTransform)
     animation.setParent(playerTransform)
@@ -83,6 +133,8 @@ PIXI.Assets.load('/assets/animation/spineboy-pro.json').then((resource) => {
         animation.state.timeScale = 0.1 * playerSettings.speed;
         animation.autoUpdate = true;
     }
+   
+
 });
 
 const GameLoop = () => {
@@ -154,6 +206,10 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('keyup', (e) => {
     userInput.isInput = false
 });
+
+
+
+
 
 
 
