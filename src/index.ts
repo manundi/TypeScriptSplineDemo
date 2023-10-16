@@ -43,11 +43,26 @@ let player = {
     velocity: 1,
 }
 
+type BgLayers = {
+    sky? : PIXI.Sprite,
+    mountains? : PIXI.Sprite,
+    trees? : PIXI.Sprite,
+    trees2? : PIXI.Sprite,
+    front? : PIXI.Sprite
+}
+let bgLayers : BgLayers = {
+    sky:null,
+    mountains:null,
+    trees: null,
+    trees2: null,
+    front: null
+}
+
 // define basic settings of html canvas. Sizer bg color etc.
 const game = new PIXI.Application<any>({
     width: screenSize.x,
     height: screenSize.y,
-    backgroundColor: 'pink',
+    backgroundColor: 'white',
 });
 
 // attach the game (pixi app) to the html document element called body
@@ -55,8 +70,23 @@ document.body.appendChild(game.view)
 
 PIXI.Assets.load('/assets/Arrow_keys.jpg').then((resource) => {
     const keyboardInstructions = new PIXI.Sprite(resource)
-    keyboardInstructions.setTransform(screenSize.x/2 -100,screenSize.y-200,0.5,0.5)
+    keyboardInstructions.setTransform(screenSize.x/2 -50,50,0.3,0.3)
     game.stage.addChild(keyboardInstructions);
+})
+
+PIXI.Assets.load('/assets/Trees.png').then((resource) => {
+
+    bgLayers.trees = new PIXI.Sprite(resource)
+    bgLayers.trees2 = new PIXI.Sprite(resource)
+    let width = screenSize.x/resource.width
+    let height = screenSize.y / resource.height
+
+    bgLayers.trees.setTransform(0,0,width,height)
+    bgLayers.trees2.setTransform(bgLayers.trees.width,0,width,height)
+    game.stage.addChild( bgLayers.trees);
+    game.stage.setChildIndex(bgLayers.trees,0)
+    game.stage.addChild( bgLayers.trees2);
+    game.stage.setChildIndex(bgLayers.trees2,0)
 })
 
 
@@ -74,7 +104,7 @@ PIXI.Assets.load('/assets/animation/spineboy-pro.json').then((resource) => {
 
     playerTransform.setTransform(
         screenSize.x / 2,
-        screenSize.y / 2 + animation.height * playerSettings.scale / 2,
+        screenSize.y  -100,
         playerSettings.scale * 1, playerSettings.scale * 1
     )
 
@@ -87,12 +117,7 @@ PIXI.Assets.load('/assets/animation/spineboy-pro.json').then((resource) => {
 
 const GameLoop = () => {
     //initial animation /movement when user did not yet take control
-    if (!gameHasStarted) {
-        playerTransform.position.set(
-            playerTransform.position.x + playerSettings.speed,
-            playerTransform.position.y)
-    //user has control, game has started
-    } else {
+    if (gameHasStarted) {
         if (userInput.isInput) {
             
         } else {
@@ -103,7 +128,19 @@ const GameLoop = () => {
         playerTransform.position.set(
         playerTransform.position.x + player.velocity,
         playerTransform.position.y)
+        bgLayers.trees.x -= player.velocity
+        bgLayers.trees2.x -= player.velocity
       
+      
+        // If the first background has moved completely off screen, reposition it to the end
+        if (bgLayers.trees.x + bgLayers.trees.width <= 0) {
+            bgLayers.trees.x = bgLayers.trees2.x + bgLayers.trees2.width;
+        }
+
+        // Similarly, if the second background has moved off screen, reposition it to the end
+        if (bgLayers.trees2.x + bgLayers.trees2.width <= 0) {
+            bgLayers.trees2.x = bgLayers.trees.x + bgLayers.trees.width;
+        }
     }
     if (playerTransform.x > screenSize.x + playerTransform.width / 2) {
         playerTransform.x = -playerTransform.width / 2;
@@ -111,8 +148,12 @@ const GameLoop = () => {
     if (playerTransform.x < -100 ) {
         playerTransform.x = screenSize.x +20
     }
+    
     //TODO: Fix moving to idle when playervelocity is near 0
     //if(animation?.state.timeScale  <0.1) animation.state.setAnimation(0, 'run-to-idle', false)
+    
+    
+    
 
 }
 
@@ -130,6 +171,8 @@ const Lerp = (a: number, b: number, t: number) => {
 
 
 document.addEventListener('keydown', (e) => {
+
+
     userInput.isInput = true
     //TODO: this does not need to set everytime, how to prevent?
     gameHasStarted = true
@@ -138,22 +181,28 @@ document.addEventListener('keydown', (e) => {
         case 'd':
             player.velocity = playerSettings.speed
             animation.scale.x = 1
+
             break;
 
         case 'ArrowLeft':
         case 'a':
             player.velocity = -playerSettings.speed
             animation.scale.x = -1
+
             break;
 
         default:
             break;
     }
+ 
 });
 
 document.addEventListener('keyup', (e) => {
     userInput.isInput = false
 });
+
+
+
 
 
 
