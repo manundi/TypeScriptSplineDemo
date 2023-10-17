@@ -16,11 +16,15 @@ type CharacterSettings = {
 
 const screenSize: Vector2 = { x: window.innerWidth, y: window.innerHeight }
 
+interface PlayerSettings extends CharacterSettings {
+    movingEnabled: boolean;
+}
 //we have an a character, we will call it player
-const playerSettings: CharacterSettings = {
+const playerSettings: PlayerSettings = {
     name: 'Captain Cosmic',
     scale: 0.3,
-    speed: 2
+    speed: 2,
+    movingEnabled: false,
 }
 
 const playerTransform = new Container()
@@ -57,6 +61,8 @@ let bgLayers: BgLayers = {
     front: [null, null],
 }
 
+let objectsOnStage : any = []
+
 // define basic settings of html canvas. Sizer bg color etc.
 const game = new PIXI.Application<any>({
     width: screenSize.x,
@@ -67,66 +73,66 @@ const game = new PIXI.Application<any>({
 // attach the game (pixi app) to the html document element called body
 document.body.appendChild(game.view)
 
-const AddSprite = (path: string, sprite1: PIXI.Sprite, sprite2: PIXI.Sprite): Promise<void> => {
+const AddSprite = (path: string, sprites: PIXI.Sprite[]): Promise<void> => {
     return PIXI.Assets.load(path).then((resource) => {
         let width = screenSize.x / resource.width
         let height = screenSize.y / resource.height
 
-        sprite1 = new PIXI.Sprite(resource)
-        sprite2 = new PIXI.Sprite(resource)
+        const sprite1 = new PIXI.Sprite(resource)
+        const sprite2 = new PIXI.Sprite(resource)
 
         sprite1.setTransform(0, 0, width, height);
         sprite2.setTransform(sprite1.width, 0, width, height);
-        game.stage.addChild(sprite1, sprite2);
+        sprites[0] = sprite1
+        sprites[1] = sprite2 
+        objectsOnStage.push(sprite1, sprite2);
     })
 }
 const spriteloaders = [
-    AddSprite('/assets/Sky.png', bgLayers.sky[0], bgLayers.sky[1]),
-    AddSprite('/assets/Mountains.png', bgLayers.mountains[0], bgLayers.mountains[1]),
-    AddSprite('/assets/Trees.png', bgLayers.trees[0], bgLayers.trees[1]),
-    AddSprite('/assets/Ground.png', bgLayers.ground[0], bgLayers.ground[1]),
-    AddSprite('/assets/ForeGround.png', bgLayers.front[0], bgLayers.front[1]),
+    AddSprite('/assets/Sky.png', bgLayers.sky,),
+    AddSprite('/assets/Mountains.png', bgLayers.mountains),
+    AddSprite('/assets/Trees.png', bgLayers.trees),
+    AddSprite('/assets/Ground.png', bgLayers.ground),
+    AddSprite('/assets/ForeGround.png', bgLayers.front),
 
 ];
 
 //TODO: fix layer order
 Promise.all(spriteloaders).then(() => {
-    // console.log('kek1')
-    // game.stage.setChildIndex(bgLayers.sky[0],0)
-    // console.log('kek')
-    // game.stage.setChildIndex(bgLayers.ground[0],1)
-    // console.log('kek2')
-    // bgLayers.sky.forEach(item => game.stage.setChildIndex(item, 0))
-    // bgLayers.mountains.forEach(item => game.stage.setChildIndex(item, 1))
-    // bgLayers.trees.forEach(item => game.stage.setChildIndex(item, 2))
-    // bgLayers.ground.forEach(item => game.stage.setChildIndex(item, 3))
-    // bgLayers.front.forEach(item => game.stage.setChildIndex(item, 4))
+    console.log('kek1', bgLayers.sky[0])
+
+    bgLayers.sky.forEach(item => item.zIndex = -100)
+    bgLayers.mountains.forEach(item => item.zIndex = -90)
+    bgLayers.trees.forEach(item => item.zIndex = -80)
+    bgLayers.ground.forEach(item => item.zIndex = 0)
+    bgLayers.front.forEach(item => item.zIndex = 10)
     console.log('All sprites have been added!');
+    
     PIXI.Assets.load('/assets/animation/spineboy-pro.json').then((resource) => {
         animation = new Spine(resource.spineData);
-        playerNamePlate.setTransform(-250, 1, 3, 3)
-        playerNamePlate.setParent(playerTransform)
-        playerNamePlate.style.fill = '#FFF'
-        playerNamePlate.style.dropShadow = true
-        playerNamePlate.style.fontWeight = 'bold'
         animation.setParent(playerTransform)
         game.stage.addChild(playerTransform);
-        game.stage.setChildIndex(playerTransform,4)
-
-        // lets move the newly created animation to center of the screen
-
         playerTransform.setTransform(
             screenSize.x / 2,
-            screenSize.y - 100,
-            playerSettings.scale * 1, playerSettings.scale * 1
+            screenSize.y -  playerSettings.scale * 1 * (screenSize.x /1600)*450,
+            playerSettings.scale * 1 *(screenSize.x /1600), playerSettings.scale * 1 * (screenSize.x /1600)
         )
-
         if (animation.state.hasAnimation('run')) {
             animation.state.setAnimation(0, 'run', true);
             animation.state.timeScale = 0.1 * playerSettings.speed;
             animation.autoUpdate = true;
         }
-        console.log('Loaded spineboy: ')
+
+        playerNamePlate.setTransform(-250, 1, 3, 3)
+        playerNamePlate.setParent(playerTransform)
+        playerNamePlate.style.fill = '#FFF'
+        playerNamePlate.style.dropShadow = true
+        playerNamePlate.style.fontWeight = 'bold'
+
+        console.log('Loaded bgs: ',objectsOnStage)
+        game.stage.sortableChildren = true
+        game.stage.addChild(...objectsOnStage)
+        console.log('all set ')
     });
 
 }).catch((error) => {
@@ -141,89 +147,49 @@ PIXI.Assets.load('/assets/Arrow_keys.jpg').then((resource) => {
     game.stage.addChild(keyboardInstructions);
 })
 
-// PIXI.Assets.load('/assets/Trees.png').then((resource) => {
-
-//     bgLayers.ground = new PIXI.Sprite(resource)
-//     let width = screenSize.x/resource.width
-//     let height = screenSize.y / resource.height
-
-//     bgLayers.ground.setTransform(0,0,width,height)
-//     game.stage.addChild( bgLayers.ground);
-
-
-//     PIXI.Assets.load('/assets/Trees.png').then((resource) => {
-
-//         bgLayers.trees = new PIXI.Sprite(resource)
-//         bgLayers.trees2 = new PIXI.Sprite(resource)
-//         let width = screenSize.x/resource.width
-//         let height = screenSize.y / resource.height
-
-//         bgLayers.trees.setTransform(0,0,width,height)
-//         bgLayers.trees2.setTransform(bgLayers.trees.width,0,width,height)
-//         game.stage.addChild( bgLayers.trees);
-//         game.stage.setChildIndex(bgLayers.trees,0)
-//         game.stage.addChild( bgLayers.trees2);
-//         game.stage.setChildIndex(bgLayers.trees2,0)
-
-//         PIXI.Assets.load('/assets/Sky.png').then((resource) => {
-
-//             bgLayers.sky = new PIXI.Sprite(resource)
-//             let width = screenSize.x/resource.width
-//             let height = screenSize.y / resource.height
-
-//             bgLayers.sky.setTransform(0,0,width,height)
-//             game.stage.addChild( bgLayers.sky);
-//             game.stage.setChildIndex(bgLayers.sky,0)
-//         })
-//     })
-// })
-
-
 
 const GameLoop = () => {
-    //initial animation /movement when user did not yet take control
     if (gameHasStarted) {
-        if (userInput.isInput) {
+        if (!userInput.isInput)player.velocity = Lerp(player.velocity, 0, 0.03)
+       
+        animation.state.timeScale = 0.2 * Math.abs(player.velocity)
+   
+        
+        bgLayers.sky.forEach(i => i.x -= player.velocity*0.2)
+        bgLayers.mountains.forEach(i => i.x -= player.velocity*0.3)
+        bgLayers.trees.forEach(i => i.x -= player.velocity*0.6)
+        bgLayers.ground.forEach(i => i.x -= player.velocity*0.9)
+        bgLayers.front.forEach(i => i.x -= player.velocity*1)
 
-        } else {
-            player.velocity = Lerp(player.velocity, 0, 0.03)
-        }
-
-        animation.state.timeScale = 0.1 * Math.abs(player.velocity)
-        playerTransform.position.set(
-            playerTransform.position.x + player.velocity,
-            playerTransform.position.y)
-        bgLayers.trees[0].x -= player.velocity
-        bgLayers.trees[1].x -= player.velocity
-
-        const RepeatLayers = (spites: PIXI.Sprite[]): void => {
-            // If the first background has moved completely off screen, reposition it to the end
-            if (spites[0].x + spites[0].width <= 0) {
-                spites[0].x = spites[1].x + spites[1].width;
-            }
-            // Similarly, if the second background has moved off screen, reposition it to the end
-            if (spites[1].x + spites[1].width <= 0) {
-                spites[1].x = spites[0].x + spites[0].width;
-            }
+        const RepeatBackground = (spites: PIXI.Sprite[]): void => {
+            if (spites[0].x + spites[0].width <= 0) spites[0].x = spites[1].x + spites[1].width;
+            if (spites[1].x + spites[1].width <= 0) spites[1].x = spites[0].x + spites[0].width;
+            if (spites[0].x >= screenSize.x) spites[0].x = spites[1].x - spites[0].width;
+            if (spites[1].x >= screenSize.x) spites[1].x = spites[0].x - spites[1].width;
         }
         Object.entries(bgLayers).forEach(([key, value]) => {
-            RepeatLayers(value)
+            RepeatBackground(value)
         });
 
     }
-    if (playerTransform.x > screenSize.x + playerTransform.width / 2) {
+if(playerSettings.movingEnabled){
+    playerTransform.position.set(
+        playerTransform.position.x + player.velocity,
+        playerTransform.position.y)
+
+    //run out of screen to right TODO: this is broken
+    if (playerTransform.x > 100) {
         playerTransform.x = -playerTransform.width / 2;
     }
+      //run out of screen to left
     if (playerTransform.x < -100) {
         playerTransform.x = screenSize.x + 20
     }
 
-    //TODO: Fix moving to idle when playervelocity is near 0
-    //if(animation?.state.timeScale  <0.1) animation.state.setAnimation(0, 'run-to-idle', false)
+}
 
 
-
-
+    //TODO: Add moving to idle when playervelocity is near 0
 }
 
 game.ticker.add(GameLoop)
@@ -238,10 +204,7 @@ const Lerp = (a: number, b: number, t: number) => {
     return result;
 }
 
-
 document.addEventListener('keydown', (e) => {
-
-
     userInput.isInput = true
     //TODO: this does not need to set everytime, how to prevent?
     gameHasStarted = true
@@ -250,20 +213,16 @@ document.addEventListener('keydown', (e) => {
         case 'd':
             player.velocity = playerSettings.speed
             animation.scale.x = 1
-
             break;
 
         case 'ArrowLeft':
         case 'a':
             player.velocity = -playerSettings.speed
             animation.scale.x = -1
-
             break;
-
         default:
             break;
     }
-
 });
 
 document.addEventListener('keyup', (e) => {

@@ -90,9 +90,9 @@ gun
   index: -1
 head
   rotate: false
-  xy: 2, 58
-  size: 271, 298
-  orig: 271, 298
+  xy: 0, 70
+  size: 71, 298
+  orig: 295, 298
   offset: 0, 0
   index: -1
 hoverboard-board
