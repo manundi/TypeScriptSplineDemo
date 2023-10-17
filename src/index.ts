@@ -207,16 +207,18 @@ const Lerp = (a: number, b: number, t: number) => {
 document.addEventListener('keydown', (e) => {
     userInput.isInput = true
     //TODO: this does not need to set everytime, how to prevent?
-    gameHasStarted = true
+    
     switch (e.key) {
         case 'ArrowRight':
         case 'd':
+            gameHasStarted = true
             player.velocity = playerSettings.speed
             animation.scale.x = 1
             break;
 
         case 'ArrowLeft':
         case 'a':
+            gameHasStarted = true
             player.velocity = -playerSettings.speed
             animation.scale.x = -1
             break;
@@ -226,7 +228,20 @@ document.addEventListener('keydown', (e) => {
 });
 
 document.addEventListener('keyup', (e) => {
-    userInput.isInput = false
+    switch (e.key) {
+        case 'ArrowRight':
+        case 'd':
+            userInput.isInput = false
+            break;
+
+        case 'ArrowLeft':
+        case 'a':
+            userInput.isInput = false
+            break;
+        default:
+            break;
+    }
+   
 });
 
 
