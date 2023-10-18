@@ -1,4 +1,5 @@
-import 'pixi-spine' // Do this once at the very start of your code. This registers the loader!
+
+import 'pixi-spine' 
 import * as PIXI from 'pixi.js'
 import { Spine } from 'pixi-spine'
 import { Text, Container } from 'pixi.js'
@@ -31,7 +32,6 @@ const playerTransform = new Container()
 const playerNamePlate = new Text(playerSettings.name)
 let animation: any
 let gameHasStarted = false
-
 
 let userInput = {
     isInput: false,
@@ -154,7 +154,6 @@ const GameLoop = () => {
        
         animation.state.timeScale = 0.2 * Math.abs(player.velocity)
    
-        
         bgLayers.sky.forEach(i => i.x -= player.velocity*0.2)
         bgLayers.mountains.forEach(i => i.x -= player.velocity*0.3)
         bgLayers.trees.forEach(i => i.x -= player.velocity*0.6)
