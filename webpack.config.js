@@ -9,7 +9,8 @@ const config = {
     entry: './src/index.ts',
     output: {
         path: path.resolve(__dirname, 'dist'),
-        publicPath: '/'
+        publicPath: '/',
+        filename: 'server.js',
     },
     devServer: {
         open: true,
