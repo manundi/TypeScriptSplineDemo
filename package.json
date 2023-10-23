@@ -11,7 +11,7 @@
     "build:prod": "webpack --mode=production --node-env=production",
     "watch": "webpack --watch",
     "serve": "webpack serve",
-    "pm2": "pm2 start ./dist/main.js --watch=true"
+    "pm2": "pm2 start ./dist/server.js --watch=true"
   },
   "keywords": [],
   "author": "",
