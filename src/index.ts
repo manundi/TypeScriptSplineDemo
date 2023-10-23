@@ -4,6 +4,10 @@ import * as PIXI from 'pixi.js'
 import { Spine } from 'pixi-spine'
 import { Text, Container } from 'pixi.js'
 
+
+const window = global.window
+
+
 type Vector2 = {
     x: number,
     y: number
