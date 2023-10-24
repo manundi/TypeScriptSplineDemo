@@ -5,8 +5,6 @@ import { Spine } from 'pixi-spine'
 import { Text, Container } from 'pixi.js'
 
 
-const window = global.window
-
 
 type Vector2 = {
     x: number,
@@ -93,7 +91,7 @@ const AddSprite = (path: string, sprites: PIXI.Sprite[]): Promise<void> => {
     })
 }
 const spriteloaders = [
-    AddSprite('/assets/Sky.png', bgLayers.sky,),
+    AddSprite('/assets/sky.png', bgLayers.sky,),
     AddSprite('/assets/Mountains.png', bgLayers.mountains),
     AddSprite('/assets/Trees.png', bgLayers.trees),
     AddSprite('/assets/Ground.png', bgLayers.ground),
