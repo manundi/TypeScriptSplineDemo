@@ -10,7 +10,7 @@ const config = {
     output: {
         path: path.resolve(__dirname, 'dist'),
         publicPath: '/',
-        filename: 'server.js',
+        filename: 'main.js',
         globalObject: 'this',
     },
     devServer: {
